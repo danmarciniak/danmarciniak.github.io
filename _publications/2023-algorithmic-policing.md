@@ -4,7 +4,7 @@ collection: publications
 category: manuscripts
 permalink: /publication/2023-algorithmic-policing
 excerpt: 'Based on in-depth interviews with officers in a UK police force, this article examines how automated risk scores institutionalise an individual-focussed threat-harm-risk strategy aimed at preventing repeat offending.'
-date: 2023-01-01
+date: 2023-04-21
 venue: 'Policing and Society'
 paperurl: 'https://doi.org/10.1080/10439463.2022.2144305'
 citation: 'Marciniak, D. (2023). &quot;Algorithmic policing: An exploratory study of the algorithmically mediated construction of individual risk in a UK police force.&quot; <i>Policing and Society</i>, 33(4), 449&ndash;463. https://doi.org/10.1080/10439463.2022.2144305'

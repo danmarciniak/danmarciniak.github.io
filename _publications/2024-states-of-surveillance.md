@@ -2,12 +2,12 @@
 title: "States of Surveillance: Ethnographies of New Technologies in Policing and Justice"
 collection: publications
 category: books
-permalink: /publication/2025-states-of-surveillance
+permalink: /publication/2024-states-of-surveillance
 excerpt: 'An open access edited volume examining the socio-technical assemblages that underpin surveillance by criminal justice institutions, drawing on ethnographic research from across the globe.'
-date: 2025-01-01
+date: 2024-08-16
 venue: 'Routledge Studies in Surveillance'
 paperurl: 'https://doi.org/10.4324/9781003412908'
-citation: 'Avis, M., Marciniak, D., &amp; Sapignoli, M. (Eds.). (2025). <i>States of Surveillance: Ethnographies of New Technologies in Policing and Justice</i>. Routledge. https://doi.org/10.4324/9781003412908'
+citation: 'Avis, M., Marciniak, D., &amp; Sapignoli, M. (Eds.). (2024). <i>States of Surveillance: Ethnographies of New Technologies in Policing and Justice</i>. Routledge. https://doi.org/10.4324/9781003412908'
 ---
 
 Edited with Maya Avis and Maria Sapignoli.

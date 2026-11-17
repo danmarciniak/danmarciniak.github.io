@@ -23,7 +23,7 @@ repository               : "danmarciniak/dmarciniak.github.io"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "profile.png"
+  avatar           : "profile.jpg"
   name             : "Dr Daniel Marciniak"
   pronouns         : # example: "she/her"  
   bio              : "Lecturer in Criminology. Researching technology, data and AI in policing."
@@ -90,6 +90,8 @@ publication_category:
     title: 'Journal Articles'
   chapters:
     title: 'Book Chapters'
+  conferences:
+    title: 'Conference Papers'
   theses:
     title: 'Thesis'
 
