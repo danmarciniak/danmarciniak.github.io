@@ -7,6 +7,13 @@ redirect_from:
   - /about.html
 ---
 
+<p class="profile-links">
+<a class="btn btn--inverse btn--small" href="https://www.hull.ac.uk/staff-directory/daniel-marciniak"><i class="fas fa-fw fa-building-columns" aria-hidden="true"></i> University of Hull</a>
+<a class="btn btn--inverse btn--small" href="https://scholar.google.co.uk/citations?user=pqkEJQsAAAAJ&amp;hl=en"><i class="ai ai-google-scholar ai-fw" aria-hidden="true"></i> Google Scholar</a>
+<a class="btn btn--inverse btn--small" href="https://orcid.org/0000-0002-1843-120X"><i class="ai ai-orcid ai-fw" aria-hidden="true"></i> ORCID</a>
+<a class="btn btn--inverse btn--small" href="https://www.researchgate.net/profile/Daniel-Marciniak"><i class="fab fa-fw fa-researchgate" aria-hidden="true"></i> ResearchGate</a>
+</p>
+
 I am a Lecturer in Criminology in the School of Criminology, Politics and Law at the [University of Hull](https://www.hull.ac.uk/staff-directory/daniel-marciniak), which I joined in July 2022.
 
 My research looks at how digital technologies, data analysis and artificial intelligence are changing the practice and governance of policing. I use ethnographic and interview-based methods to study what happens when tools such as predictive policing systems and automated risk scores are put to work in police organisations, and how officers, analysts and technology companies negotiate them in practice.
