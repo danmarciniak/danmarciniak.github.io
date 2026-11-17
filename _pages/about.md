@@ -12,6 +12,7 @@ redirect_from:
 <a class="btn" href="https://scholar.google.co.uk/citations?user=pqkEJQsAAAAJ&amp;hl=en"><i class="ai ai-google-scholar ai-fw" aria-hidden="true"></i> Google Scholar</a>
 <a class="btn" href="https://orcid.org/0000-0002-1843-120X"><i class="ai ai-orcid ai-fw" aria-hidden="true"></i> ORCID</a>
 <a class="btn" href="https://www.researchgate.net/profile/Daniel-Marciniak"><i class="fab fa-fw fa-researchgate" aria-hidden="true"></i> ResearchGate</a>
+<a class="btn" href="https://www.linkedin.com/in/daniel-marciniak-466654151/"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i> LinkedIn</a>
 </p>
 
 I am a Lecturer in Criminology in the School of Criminology, Politics and Law at the [University of Hull](https://www.hull.ac.uk/staff-directory/daniel-marciniak), which I joined in July 2022.
