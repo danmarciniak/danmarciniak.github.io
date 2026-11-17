@@ -1,4 +1,5 @@
 ---
+published: false # hidden for now; delete this line to restore
 layout: archive
 title: "CV"
 permalink: /cv/

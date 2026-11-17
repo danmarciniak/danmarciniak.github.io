@@ -11,5 +11,7 @@ main:
   - title: "Publications"
     url: /publications/
 
-  - title: "CV"
-    url: /cv/
+  # CV hidden for now. To restore, uncomment these lines and remove
+  # "published: false" from _pages/cv.md
+  # - title: "CV"
+  #   url: /cv/
