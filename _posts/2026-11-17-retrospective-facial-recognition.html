@@ -1,0 +1,484 @@
+---
+title: "Retrospective facial recognition in UK policing: more evidence is needed"
+date: 2026-11-17
+permalink: /posts/2026/11/retrospective-facial-recognition/
+excerpt: "An interactive back-of-the-envelope estimate of how often retrospective facial recognition searches on the Police National Database could lead to police contact with the wrong person."
+tags:
+  - facial recognition
+  - policing
+  - surveillance
+---
+{% raw %}
+<style>
+/* Scoped to this post; colours follow the site theme, including its dark mode */
+.rfr{
+  --bg:var(--global-bg-color); --ink:var(--global-text-color);
+  --ink2:color-mix(in srgb,var(--global-text-color) 78%,var(--global-bg-color));
+  --muted:color-mix(in srgb,var(--global-text-color) 55%,var(--global-bg-color));
+  --rule:var(--global-border-color);
+  --card:color-mix(in srgb,var(--global-text-color) 5%,var(--global-bg-color));
+  --accent:var(--global-base-color);
+  --accent-soft:color-mix(in srgb,var(--global-base-color) 14%,transparent);
+  --bar:color-mix(in srgb,var(--global-text-color) 22%,var(--global-bg-color));
+}
+.rfr .v{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rfr .v.changed{animation:rfr-flash .6s ease}
+@keyframes rfr-flash{from{background:var(--accent-soft)}to{background:transparent}}
+.rfr .ctl{font-size:.88em;background:var(--card);border-radius:4px;padding:14px 16px;margin:0 0 1.4em;border:1px solid var(--rule)}
+.rfr .ctl h3{font-size:1em;font-style:italic;color:var(--ink2);margin:0 0 8px;font-weight:400;padding:0;border:0}
+.rfr .row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;margin:8px 0 2px}
+.rfr .row output{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;min-width:3.5em;text-align:right}
+.rfr .slider{grid-column:1/-1;position:relative;padding-bottom:18px}
+.rfr input[type=range]{width:100%;accent-color:var(--accent);margin:4px 0}
+.rfr .marks{position:absolute;left:0;right:0;bottom:0;height:16px;font-size:.75em;color:var(--muted)}
+.rfr .marks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.rfr .marks span::before{content:"";position:absolute;left:50%;top:-6px;height:5px;border-left:1px solid var(--muted)}
+.rfr .hint{color:var(--ink2);font-size:.85em;margin-top:4px}
+.rfr .seg{display:inline-flex;border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin:4px 6px 4px 0;flex-wrap:wrap}
+.rfr .seg button{font:inherit;font-size:.9em;border:0;background:transparent;color:var(--ink);padding:6px 11px;cursor:pointer}
+.rfr .seg button[aria-pressed=true]{background:var(--accent);color:#fff}
+.rfr label.chk{display:flex;gap:8px;align-items:center;margin:6px 0;cursor:pointer}
+.rfr input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+.rfr .tablewrap{overflow-x:auto;margin-bottom:1.3em}
+.rfr .tablewrap table{font-size:.8em;margin:0}
+.rfr figure{display:block;margin:1.6em 0 2em}
+.rfr figure svg{width:100%;height:auto}
+.rfr figcaption{font-size:.8em;color:var(--ink2);margin-top:6px}
+.rfr svg text{font-family:inherit}
+.rfr .bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--rule);z-index:10;box-shadow:0 -4px 14px rgba(0,0,0,.06);margin-top:2em}
+.rfr .bar-in{padding:10px 4px;display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap}
+.rfr .bar .big{font-size:1.4em;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.rfr .bar .lbl{font-size:.8em;color:var(--ink2);line-height:1.3}
+.rfr .bar .btns{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.rfr button.b{font:inherit;font-size:.8em;padding:6px 11px;border-radius:4px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}
+.rfr button.b:hover{border-color:var(--accent)}
+.rfr button.primary{background:var(--accent);color:#fff;border-color:var(--accent);margin-top:8px}
+.rfr .mc input[type=number]{width:4.6em;font:inherit;font-size:.9em;padding:3px 4px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink);margin:0}
+.rfr .stats{display:flex;gap:18px;flex-wrap:wrap;font-size:.9em;margin:12px 0 8px}
+.rfr .stats b{color:var(--accent);font-size:1.15em}
+.rfr .rfr-footer{font-size:.8em;color:var(--ink2);border-top:1px solid var(--rule);margin-top:2.5em;padding-top:1em}
+.rfr .hide{display:none}
+</style>
+<div class="rfr">
+<div class="notice--info">In this interactive version, the panels let you manipulate the assumptions I have made to generate your own estimates. Every <span class="v" style="animation:none">highlighted number</span> further down updates as you make changes, and the bar at the bottom shows your final estimate. At the end, you can let the page try thousands of combinations at once. <em>Interactive elements generated with Claude AI.</em></div>
+
+<h2>A welcome search for evidence</h2>
+
+<p>Last Thursday, on 12 November 2026, HM Inspectorate of Constabulary and Fire &amp; Rescue Services (HMICFRS) published its <a href="https://hmicfrs.justiceinspectorates.gov.uk/publications/how-police-forces-and-national-crime-agency-use-retrospective-facial-recognition/">inspection of how police use retrospective facial recognition</a> available through the Police National Database (PND). Alongside it, the Home Office surveyed <a href="https://www.gov.uk/government/publications/police-user-insights-on-retrospective-facial-recognition-2026/police-user-insights-on-retrospective-facial-recognition-2026">users of the system on their experience</a>. Together with the testing for accuracy and bias carried out by the <a href="https://www.gov.uk/government/publications/facial-recognition-technology-tests-national-physical-laboratory">National Physical Laboratory (NPL) in 2025</a>, these provide desperately needed transparency and evidence on a technology that has rightly received close scrutiny by civil liberties groups (e.g., <a href="https://www.libertyhumanrights.org.uk/?p=5014">Liberty</a>, <a href="https://privacyinternational.org/news-analysis/5635/revealed-skyrocketing-scale-uk-polices-secret-facial-recognition-searches">Privacy International</a>, <a href="https://bigbrotherwatch.org.uk/campaigns/stop-facial-recognition/">Big Brother Watch</a>).</p>
+
+<p>In use since 2013, the reports show how deeply facial recognition is now built into everyday policing. Forces ran 291,341 facial searches in the year to March 2026, about 24,000 a month (this is solely on the PND; some forces operate their own separate systems). An officer uploads a still image, often from CCTV and increasingly from doorbell cameras, and the system returns a list of possible matches from more than 20 million custody photographs.</p>
+
+<p>In NPL's tests, the algorithm put the right person first in 3,510 of 3,513 searches: 99.9%. But that figure only counts searches where the person was in the database. It does not tell us how often a search for someone who is not on file produces a convincing-looking wrong face, how often a reviewer picks that face, or what investigators do next. At this scale, accuracy becomes a numbers game. Search often enough, for enough people who are not on file or are caught on grainy footage, and even a very good system produces a steady stream of wrong faces. What's more, these faces will look strikingly similar to the one searched for because finding similar faces is what the technology is optimised for.</p>
+
+<p>Unfortunately, one of HMICFRS's recent findings was that most police forces do not record or audit their use of facial recognition, which makes it impossible to assess both the successes, beyond anecdotal evidence and a broad majority of respondents in the Home Office survey judging RFR useful, and the failures. Yet a third of surveyed users were wrong or unsure about whether a match meets the legal standard for identification (it does not).</p>
+
+<p>By way of a back-of-the-envelope calculation this blog post assesses the latter issue, how often might a false positive be used as an investigative lead resulting in police contact for an unrelated individual?</p>
+
+<h2>A cautious estimate of how big the problem could be</h2>
+
+<p>We can step-by-step estimate how many searches could turn out false positive results resulting in false investigative leads. For each step, I provide an estimate and, where values are not known, take the cautious end of what the evidence allows, so that the final figure is deliberately restrictive.</p>
+
+<p>We start with all 291,341 searches. This is HMICFRS's count of PND facial searches in the year to March 2026. While the report says the bulk of these searches was for volume crimes like shop theft, there is no further breakdown for these searches. It may be that some of these would have been in search of victims or for identifying someone in a mental health crisis; the identity of missing persons is usually known. From a <a href="https://www.hmics.scot/media/gwfp44ne/hmics-audit-and-assurance-review-of-the-use-of-the-facial-search-functionality-within-the-uk-police-national-database-pnd-by-police-scotland.pdf">Police Scotland audit</a> we know that around 96% of searches are for suspects (that is excluding searches for "vulnerable adult", "child abuse", and vetting searches) and 42% of searches are repeat searches of an image already searched. Let us assume that this is also true for England and Wales.</p>
+
+<div class="ctl" id="c-search">
+  <h3>Your choice: which searches count</h3>
+  <div class="row"><label for="rep">Share of searches that repeat an image already searched</label><output id="o-rep"></output>
+    <div class="slider"><input type="range" id="rep" min="0" max="60" step="1"><div class="marks" data-for="rep" data-marks="42:Police Scotland"></div></div></div>
+  <div class="row"><label for="susp">Share of searches that are for suspects</label><output id="o-susp"></output>
+    <div class="slider"><input type="range" id="susp" min="80" max="100" step="1"><div class="marks" data-for="susp" data-marks="96:Police Scotland"></div></div></div>
+</div>
+
+<p>Moreover, we know from the report that British Transport Police repeats searches for unmatched suspects every six months, or one month before the statutory time limit expires. Although one could argue that repeat searches might be more motivated to make out a suspect and therefore more susceptible to accepting false positives, they also are less likely to bring up 'new' faces. <span data-if="btp">To be conservative, we therefore exclude these in addition to the repeat searches estimated with the Scottish data. Assuming BTP ran the 29,742 searches of the busiest force (which may well have instead been a large force like West Midlands Police) and resubmitted around three in four images once because they produced no match, about <span class="v" data-v="btpRep"></span> of its searches were repeats. Taking these out leaves about <span class="v" data-v="afterBtp"></span> searches.</span><span data-ifnot="btp">You have chosen not to remove BTP's resubmissions separately, so we go on with all 291,341 searches.</span> Removing <span class="v" data-v="repPct"></span> of the rest as repeats leaves about <span class="v" data-v="distinct"></span> distinct images, and keeping the <span class="v" data-v="suspPct"></span> that are for suspects leaves <strong>about <span class="v" data-v="suspects"></span> searches</strong>.<span data-if="btp"> Because the Scottish repeat rate already includes some repeats of this kind, this probably double counts a little, which keeps the estimate on the low side.</span></p>
+
+<div class="ctl">
+  <h3>Your choice: BTP resubmissions</h3>
+  <label class="chk"><input type="checkbox" id="btp"> Also remove about 13,000 BTP resubmissions of unmatched images</label>
+</div>
+
+<p>HMICFRS reports that 74% of searches return at least one face, usually 9 to 15. That's close to <span class="v" data-v="lists"></span> searches putting roughly <span class="v" data-v="faces"></span> faces in front of reviewers each year (appearances on lists, not necessarily different people), nearly all of them people who had nothing to do with the incident but happen to have a custody photo on the PND.</p>
+
+<p>Now, how many of these searches do not include the right person? Probably around <span class="v" data-v="wrongLists"></span>. Two things decide whether the right person is on a list: whether they have a custody photo, and whether the algorithm finds them. The <a href="https://assets.publishing.service.gov.uk/media/693002a4cdec734f4dff4149/1a_Cognitec_NPL_Equitability_Report_October_25.pdf">NPL measured</a> how often the algorithm returns a wrong face at different settings. In its tests, a search for someone not in the database returned a wrong face 32.6% of the time at a threshold of 0.7, 13.1% at 0.75, 2.7% at 0.8, 0.2% at 0.85 and never at 0.9. But it used good-quality photos and a much smaller database than PND (about 180,000 images, against more than 20 million). A bigger database means more chances of a look-alike, while poorer images tend to produce weaker matches with everyone. So the test rates do not apply directly to real searches.</p>
+
+<p>Instead, the tests show how sharply wrong matches fall as the threshold rises. The setting the police originally used corresponds to about 0.7 (32.6% wrong faces in NPL's tests). The stricter setting tried briefly in late 2024 corresponds to about 0.82 (roughly 1.2% wrong faces, according to the <a href="https://www.npcc.police.uk/SysSiteAssets/media/downloads/publications/publications-log/national-crime-coordination-committee/2025/rfr-pnd---npcc-eia-v5.pdf">NPCC</a>). When the stricter setting was tried, the share of searches returning anyone fell by three-quarters (from 56% to 14%, according to the NPCC's 2024 figures). Because look-alikes almost disappear at that setting while good-quality matches survive, most of what remained must have been genuine matches. But some genuine matches were lost too, especially from blurry footage. How many is not published, but forces reported a significant loss of useful results. For this calculation we assume about <span class="v" data-v="sPct"></span> survived.</p>
+
+<div class="ctl">
+  <h3>Your choice: genuine matches that survived the stricter setting</h3>
+  <div class="row"><label for="s">Share of genuine matches still returned at the stricter setting</label><output id="o-s"></output>
+    <div class="slider"><input type="range" id="s" min="30" max="100" step="1"><div class="marks" data-for="s" data-marks="50:post"></div></div></div>
+  <div class="hint">Fewer survivors mean more of today's lists contain the right person, and so fewer lists with only wrong faces.</div>
+</div>
+
+<p>The first table shows how the wrong-face rate falls between the two settings. Only the last column is used: whatever the real number of wrong faces at the original setting, about 3.7% of them (r = 1.2 ÷ 32.6) would still appear at the stricter one.</p>
+
+<div class="tablewrap"><table>
+<thead><tr><th>Setting</th><th>Threshold</th><th>Wrong-face rate in tests</th><th>Source</th><th>Relative to original deployment (= 100)</th></tr></thead>
+<tbody>
+<tr><td>Original (until late 2024)</td><td>about 0.70</td><td>32.6%</td><td>NPL</td><td>100</td></tr>
+<tr><td></td><td>0.75</td><td>13.1%</td><td>NPL</td><td>40</td></tr>
+<tr><td></td><td>0.80</td><td>2.7%</td><td>NPL</td><td>8</td></tr>
+<tr><td>Stricter (tried late 2024)</td><td>about 0.82</td><td>1.2%</td><td>NPCC</td><td>3.7 (r = 1.2 ÷ 32.6)</td></tr>
+<tr><td></td><td>0.85</td><td>0.2%</td><td>NPL</td><td>0.6</td></tr>
+<tr><td></td><td>0.90</td><td>0%</td><td>NPL</td><td>0</td></tr>
+</tbody></table></div>
+
+<p>Of every 100 searches, 56 returned faces at the original setting and 14 at the stricter one (NPCC); 74 do today (HMICFRS). Call x the wrong faces among the 14, y the lists with only wrong faces at the original setting, and s the share of genuine matches that survived the stricter setting (here <span class="v" data-v="sPct"></span>):</p>
+
+<div class="tablewrap"><table>
+<thead><tr><th>Per 100 searches</th><th>Right person on the list</th><th>Only wrong faces</th><th>Total returning faces</th></tr></thead>
+<tbody>
+<tr><td>Stricter setting</td><td>14 − x ≈ <span class="v" data-v="t_g1"></span></td><td>x = r × y ≈ <span class="v" data-v="t_x"></span></td><td>14</td></tr>
+<tr><td>Original setting</td><td>(14 − x) ÷ s ≈ <span class="v" data-v="t_g0"></span></td><td>y = 56 − (14 − x) ÷ s ≈ <span class="v" data-v="t_y"></span></td><td>56</td></tr>
+<tr><td>Today's setting</td><td><span data-if="sameMix"><span class="v" data-v="t_g0"></span> ÷ 56 × 74 ≈ </span><span data-ifnot="sameMix"><span class="v" data-v="t_g0"></span> + 18 × (1 − <span class="v" data-v="ePct"></span>) ≈ </span><span class="v" data-v="t_gT"></span></td><td><span data-if="sameMix"><span class="v" data-v="t_y"></span> ÷ 56 × 74 ≈ </span><span data-ifnot="sameMix"><span class="v" data-v="t_y"></span> + 18 × <span class="v" data-v="ePct"></span> ≈ </span><span class="v" data-v="t_wT"></span></td><td>74</td></tr>
+</tbody></table></div>
+
+<p>The two equations, y = 56 − (14 − x) ÷ s and x = r × y, give y = (56 − 14 ÷ s) ÷ (1 − r ÷ s) ≈ <span class="v" data-v="t_y"></span> and x ≈ <span class="v" data-v="t_x"></span>. The remaining 26 of every 100 searches today return no faces at all. Anything from 40% to 100% of genuine matches surviving gives between about <span class="v" data-v="range40"></span> and <span class="v" data-v="range100"></span> lists with only wrong faces below. The setting may also have changed more than once. The NPCC reports that 56% of searches returned candidates at the original setting, while HMICFRS reports 74% today, after the setting was lowered again in late November 2024 to increase the number of potential matches. If today's setting is more permissive than the original, today's lists hold more wrong faces than this calculation assumes.</p>
+
+<div class="ctl">
+  <h3>Your choice: today's setting</h3>
+  <label class="chk"><input type="checkbox" id="sameMix"> Today's extra lists (74 instead of 56 per 100 searches) have the same mix as at the original setting</label>
+  <div class="row" id="e-row"><label for="e">Share of the 18 extra lists holding only wrong faces</label><output id="o-e"></output>
+    <div class="slider"><input type="range" id="e" min="0" max="100" step="1"><div class="marks" data-for="e" data-marks="100:all look-alikes"></div></div></div>
+  <div class="hint">If today's setting is simply more permissive than the original, the extra lists are mostly look-alikes.</div>
+</div>
+
+<p>This assumes real searches respond to the stricter setting in roughly the same proportion as NPL's tests.</p>
+
+<p>The right person is missing from the other lists for two reasons: not everyone searched for has a custody photo, and poor images. In NPL's 2025 tests it found the right person 99.8% of the time with good photos, 56% for people in the background and 8% for CCTV stills. Applied to the <span class="v" data-v="suspects"></span> searches, the right person appears on about <span class="v" data-v="genLists"></span> lists, leaving about <span class="v" data-v="wrongLists"></span> that hold only wrong faces (between about <span class="v" data-v="range40"></span> and <span class="v" data-v="range100"></span>, depending on how many genuine matches survived the stricter setting).</p>
+
+<h2>How many wrongful arrests and interviews under caution?</h2>
+
+<p>If you think these were already a lot of assumptions, strap in because the unknowns become only bigger from here. But hopefully you agree that, so far, we have been conservative and <span class="v" data-v="wrongLists"></span> searches returning lists of false matches is probably on the lower end of possibilities.</p>
+
+<p>Now, how often would these <span class="v" data-v="wrongLists"></span> searches have led to arrest or interview under caution? This heavily depends on how much officers scrutinise the results. From <a href="https://doi.org/10.1371/journal.pone.0139827">laboratory research</a>, we know that non-experts (students and passport examiners) pick the wrong match more than 50% of the time, while specialist facial examiners are still wrong 30% of the time. Here we assume <span class="v" data-v="paPct"></span>, although the error rate in real police reviews is unknown. That would be <span class="v" data-v="pickedA"></span> searches where a human would accept the wrong match. <span data-ifnot="ppOn">And it even excludes cases where reviewers pick a wrong face from a list that does contain the right person, which in the same study happened for specialists about one time in ten (roughly another <span class="v" data-v="ppTen"></span> searches).</span><span data-if="ppOn">You have also included wrong picks from lists that do contain the right person, at <span class="v" data-v="ppPct"></span> (specialists in the same study: about one time in ten), adding about <span class="v" data-v="pickedP"></span> searches.</span></p>
+
+<div class="ctl">
+  <h3>Your choice: how often reviewers pick a wrong face</h3>
+  <div class="row"><label for="pa">From lists without the right person</label><output id="o-pa"></output>
+    <div class="slider"><input type="range" id="pa" min="0" max="60" step="1"><div class="marks" data-for="pa" data-marks="30:specialists|54:non-experts"></div></div></div>
+  <div class="row"><label for="pp">From lists that do contain the right person</label><output id="o-pp"></output>
+    <div class="slider"><input type="range" id="pp" min="0" max="40" step="1"><div class="marks" data-for="pp" data-marks="9:specialists|30:non-experts"></div></div></div>
+  <div class="hint">Rates from White et al. (2015). The post leaves out the second kind of error (0%).</div>
+</div>
+
+<p>Of course, investigators have more information at hand than just the match. A match for a shop theft in Reading with a registered home address in Newcastle would probably prompt closer checks. So, perhaps we filter this list further down with a guess: We know that in the case of <a href="https://libertyinvestigates.org.uk/articles/facial-recognition-arrest-alvi-choudhury-police-bias/">Alvi Choudhury</a> a false match led to him being arrested for a burglary 100 miles away (about 80 miles as the crow flies). That is quite a long distance away from the crime. <span data-if="distOn">If we nonetheless assume that investigators check more closely if the match's home address is more than <span class="v" data-v="radius"></span> miles away, and that they <span data-if="top">only ever consider the top-ranked face rather than any of the 9 to 15 on the list</span><span data-ifnot="top">will look down the whole list for a face that lives close enough</span>, we can simulate the chances of this (very) roughly with ONS population data. Nationally, there is only a <span class="v" data-v="topPct"></span> chance that the first match on the list lives within <span class="v" data-v="radius"></span> miles, but because lists hold 9 to 15 faces, there is about a <span class="v" data-v="anyPct"></span> chance that at least one of them does. Because population is concentrated in larger cities, this varies widely: for a crime in central London it is 92%, in Newcastle 29% (any of 12 faces within 25 miles).</span><span data-ifnot="distOn">You have chosen not to apply a distance check, so every wrong pick goes forward.</span> These figures assume people with custody photos are spread like the general population; they are probably more concentrated in cities, which would leave more nearby look-alikes.</p>
+
+<div class="ctl">
+  <h3>Your choice: the distance check</h3>
+  <div>Investigators look more closely at faces living further than:</div>
+  <div class="seg" id="radius" role="group" aria-label="Distance">
+    <button data-val="0">no check</button><button data-val="10">10 miles</button><button data-val="25">25 miles</button><button data-val="50">50 miles</button><button data-val="100">100 miles</button>
+  </div>
+  <div id="topwrap">and they consider
+  <div class="seg" id="topany" role="group" aria-label="Which faces">
+    <button data-val="top">only the top-ranked face</button><button data-val="any">any face on the list</button>
+  </div></div>
+  <div class="hint">Shares from ONS mid-2025 population estimates and local authority locations; "any face" assumes 12 faces on the list.</div>
+</div>
+
+<p>Under these <span data-if="isPost">very conservative</span><span data-ifnot="isPost">chosen</span> conditions, there are still about <span class="v" data-v="kept"></span> searches annually for which investigators will have to make further inquiries. Matches should only be treated as intelligence and further evidence is required. However, from the Home Office survey we know that about one in ten users (10.1% for frequent users and 8.7% for infrequent users with less than 60 searches a year; 73 of 779 respondents) wrongly said a match meets the legal standard for identification, and about one in three were wrong or unsure (263 of 779). HMICFRS even found in one force's focus group that more than half did not know that results were for intelligence only. And the survey targeted trained PND licence holders, who run the searches. The investigators who submit images and decide what happens next were not asked, and HMICFRS found their training insufficient, so among them the share may well be higher. As a cautious rule, we assume that only <span class="v" data-v="actPct"></span> of wrong leads are acted on as if they were evidence, which means about <strong><span class="v" data-v="contact"></span> cases a year</strong> in which someone is visited, interviewed under caution or arrested on a wrong match. This is an illustrative scenario, not a minimum. It assumes that the other wrong leads never lead to contact, but also that every wrong lead reaching someone who treats it as evidence does. With less restrictive assumptions (reviewers picking a wrong face half the time, any face on the list being close enough, and the third of users who were wrong or unsure acting), the figure rises to about <span class="v" data-v="highVal"></span> (<button class="b" data-preset="high" style="font-size:.75rem;padding:2px 8px">try it</button>). This demonstrates how much the calculation depends on information that should be recorded but is not.</p>
+
+<div class="ctl">
+  <h3>Your choice: who acts on a wrong lead</h3>
+  <div class="row"><label for="act">Share of wrong leads acted on as evidence</label><output id="o-act"></output>
+    <div class="slider"><input type="range" id="act" min="0" max="50" step="0.5"><div class="marks" data-for="act" data-marks="9.4:think it's evidence|34:wrong or unsure"></div></div></div>
+  <div class="hint">Home Office survey of PND licence holders: 9.4% wrongly said a match meets the legal standard; 33.8% were wrong or unsure.</div>
+</div>
+
+<p>These cases do not affect just anyone. They affect those who have a photograph on the PND because they have previously been suspected of a crime. Among them the burden is uneven: in <a href="https://assets.publishing.service.gov.uk/media/693002a4cdec734f4dff4149/1a_Cognitec_NPL_Equitability_Report_October_25.pdf">NPL's tests</a>, Black women were wrongly returned as candidates far more often than White people. Being returned more often is not yet the same as a higher risk of wrongful arrest, but unfortunately forces do not record whether it becomes one.</p>
+
+<p>The post's scenario rests on a series of deliberately cautious assumptions:</p>
+<ul>
+<li>More searches exist as some forces use their own systems</li>
+<li>Repeat searches removed, including about 13,000 resubmissions by BTP, although repeats can also produce wrong matches</li>
+<li>Excluded searches for victims, vulnerable people or vetting</li>
+<li>Wrong picks from lists that also contain the right person are left out</li>
+<li>Reviewers accept a wrong face only 30% of the time, the low end of laboratory research with clear sample photos.</li>
+<li>A wrong face is kept only if the top match lives within 25 miles of the crime; nobody looks further down the list and nobody accepts a distant face, although the Choudhury case shows this happens with Hampshire officers arresting him on behalf of Thames Valley police.</li>
+<li>Only the one in ten users who think a match is evidence act on a wrong lead; for everyone else, further enquiries always catch the error.</li>
+</ul>
+
+<figure>
+  <svg id="funnel" viewBox="0 0 700 420" role="img" aria-label="Funnel from all searches to contacts on a wrong match"></svg>
+  <figcaption>Estimate from HMICFRS, NPL, the Home Office survey, ONS population data and published face-matching research · <span id="cap-mode">the post's cautious values</span></figcaption>
+</figure>
+
+<h2>What could be done about this?</h2>
+
+<p>Loosen the assumptions above and the number of people contacted on a wrong match quickly reaches thousands a year. The real figure is unknown because nobody records it. HMICFRS recommends that police forces should make more of the search facility. But even more searches will mean even more false positives. So, what could be done about this?</p>
+
+<ul>
+<li>Most importantly, police forces have to start tracking the outcomes from searches. <a href="https://hmicfrs.justiceinspectorates.gov.uk/publications/how-police-forces-and-national-crime-agency-use-retrospective-facial-recognition/">HMICFRS</a> calls on police to "routinely collect, analyse and review retrospective facial recognition information" to evaluate its use, currently we know too little about how effective it is beyond officers' opinions and, as argued here, how high the risk of false identifications is. For every search, that means recording whether it was new or a repeat, the threshold and the candidates' rankings, who selected a candidate and whether a second reviewer checked it independently, what corroborating evidence was obtained, whether the person was contacted, interviewed, arrested or eliminated, and the eventual outcome.</li>
+<li>Police forces should evaluate if blind second review of matches or centralised teams kept separate from the investigation might develop a stronger capacity of handling retrospective facial recognition (see also recommendation 14 from HMICFRS).</li>
+<li>The threshold could be adjusted again to reduce wrong leads. However, it also means less true matches.</li>
+<li>The legislator could limit the types of crime facial recognition is applied to. For example, excluding shoplifting would likely severely reduce the number of searches and therefore false positives.</li>
+<li>An improved algorithm may reduce the number of false positives. <a href="https://assets.publishing.service.gov.uk/media/6930032d5b5198836f303f67/2a_Idemia_NPL_Equitability_Report_October_25.pdf">NPL tested</a> a system trialled by Essex Police and Cheshire Constabulary which found all true matches and returned no wrong images, offering usually only one (or zero) match per search. However, this is based on high-quality photos not CCTV and doorbell camera footage.</li>
+</ul>
+
+<p>The numbers show that even with an algorithm with reportedly 99.9% accuracy, just the sheer volume of searches means that there are bound to be errors. It is crucial for trust in policing that there is more transparency around this and that legislators take this into account in drafting the long-awaited legislation on facial recognition.</p>
+
+<p>Recording investigative dead ends may seem superfluous for police purposes. A lead that goes nowhere is simply dropped, and this is probably the non-conspiratorial reason why these numbers don't exist. But logging them would do more than serve transparency. Investigators who have to note that a facial recognition lead pointed to the wrong person may stop to reflect on how much weight they gave it, and the records would help identify officers who are perhaps too reliant on the algorithm.</p>
+
+<p>We know already of two cases of false identifications leading to wrongful arrests: Alvi Choudhury, arrested by Thames Valley Police in January 2026 for a burglary in a city he had never visited, and a man held for 13 hours by South Wales Police, who later paid him damages. According to his solicitor, Mr Choudhury's photo was only in the database because of an earlier wrongful arrest. HMICFRS describes another case, in which a man was circulated for arrest over a series of shoplifting offenses and turned out not to match the image. It is likely that across the country there are many more cases of wrongful arrests of people that to the police are the 'usual suspects' and that themselves may be so used to police contact that the injustice they experienced was not out of the ordinary - perhaps this is why the capacity has existed for 13 years without any larger scandals. While half the public worry about false identification of suspects (49% in the Home Office's own <a href="https://www.gov.uk/government/publications/public-attitudes-to-police-use-of-facial-recognition-technology">survey of public attitudes</a>), the population that is most affected is probably all too often deemed deserving of the unwarranted attention.</p>
+
+<p>HMICFRS has made 16 recommendations, most due by the end of 2027: national standards for collecting and reviewing data on how searches are used, mandatory training for investigators, centralised search teams, a statutory code of practice and independent oversight. This is a genuinely good start. I hope the next round of work will be able to not only ask whether officers want the technology but also how well it is used, and who pays when it is not. Not knowing how often this goes wrong is a reason to demand better evidence, not a reason to assume the risk is small.</p>
+
+<h2>Not sure which values to pick? Try them all</h2>
+
+<p>Instead of picking one value per step as you have done so far, set a range for each, and the page will draw 10,000 combinations at random from within those ranges and show how the result is spread. The ranges below start at plausible values but you can change them as you like.</p>
+
+<div class="ctl mc">
+  <h3>Ranges for the simulation</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Step</th><th>From</th><th>To</th></tr></thead>
+    <tbody id="mc-rows"></tbody>
+  </table></div>
+  <label class="chk"><input type="checkbox" id="mc-btp"> Also remove BTP resubmissions</label>
+  <button class="b primary" id="mc-run">Run 10,000 combinations</button>
+  <div id="mc-out" class="hide">
+    <div class="stats"><div>Median<br><b id="mc-med"></b></div><div>Middle 90% of draws<br><b id="mc-int"></b></div><div>Post's scenario<br><b id="mc-post"></b></div></div>
+    <svg id="mc-hist" viewBox="0 0 700 260" role="img" aria-label="Histogram of simulated contacts a year"></svg>
+    <p class="hint">Contacts a year on a wrong match, log scale. This shows how much the result depends on the choices, not a statistical confidence interval: nobody knows how likely each value in a range is, so every value is treated as equally likely.</p>
+  </div>
+</div>
+
+<h2>Sources</h2>
+<ul style="font-size:.9rem">
+<li>HMICFRS, <a href="https://hmicfrs.justiceinspectorates.gov.uk/publications/how-police-forces-and-national-crime-agency-use-retrospective-facial-recognition/">How police forces and the National Crime Agency use retrospective facial recognition</a> (November 2026)</li>
+<li>Home Office, <a href="https://www.gov.uk/government/publications/police-user-insights-on-retrospective-facial-recognition-2026/police-user-insights-on-retrospective-facial-recognition-2026">Police user insights on retrospective facial recognition (2026)</a></li>
+<li>Howard, Rabbitt &amp; Sirotin, <a href="https://doi.org/10.1371/journal.pone.0237855">Human-algorithm teaming in face recognition</a>, PLOS ONE (2020)</li>
+<li>Liberty Investigates, <a href="https://libertyinvestigates.org.uk/articles/facial-recognition-arrest-alvi-choudhury-police-bias/">Facial recognition error prompts police to arrest Asian man for burglary 100 miles away</a> (February 2026)</li>
+<li>National Physical Laboratory, <a href="https://assets.publishing.service.gov.uk/media/693002a4cdec734f4dff4149/1a_Cognitec_NPL_Equitability_Report_October_25.pdf">Cognitec equitability report</a> (October 2025)</li>
+<li>National Physical Laboratory, <a href="https://www.gov.uk/government/publications/facial-recognition-technology-tests-national-physical-laboratory">Idemia equitability report</a> (October 2025)</li>
+<li>NPCC, <a href="https://www.npcc.police.uk/SysSiteAssets/media/downloads/publications/publications-log/national-crime-coordination-committee/2025/rfr-pnd---npcc-eia-v5.pdf">PND retrospective facial recognition Equality Impact Assessment, version 5</a> (November 2025)</li>
+<li>Office for National Statistics, mid-2025 population estimates (MYE5), local authority district boundaries (December 2023) and Standard Area Measurements (December 2021)</li>
+<li>White et al., <a href="https://doi.org/10.1371/journal.pone.0139827">Error rates in users of automatic face recognition software</a>, PLOS ONE (2015)</li>
+</ul>
+
+<p class="rfr-footer">Text © Daniel Marciniak, CC BY 4.0. Code MIT licence. All calculations run in your browser. No information is collected.</p>
+
+<div class="bar" role="status" aria-live="polite">
+  <div class="bar-in">
+    <div><span class="big" id="bar-n"></span></div>
+    <div class="lbl">contacts a year on a wrong match<br><span id="bar-sub"></span></div>
+    <div class="btns">
+      <button class="b" data-preset="post">Post's values</button>
+      <button class="b" data-preset="high">Higher-risk</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+(() => {
+"use strict";
+// ---------- fixed inputs ----------
+const V = 291341;                 // PND facial searches, year to March 2026 (HMICFRS)
+const BTP_SEARCHES = 29742, BTP_RESUB = 0.75;
+const BTP_REP = BTP_SEARCHES * BTP_RESUB / (1 + BTP_RESUB);  // ≈ 12,747
+const NONEMPTY_TODAY = 74, ORIG = 56, STRICT = 14;           // per 100 searches
+const R = 1.2 / 32.6;             // share of wrong faces still returned at the stricter setting
+// share of look-alikes living within the radius (ONS, population-weighted): top-ranked face, any of 12 faces
+const DIST = {10:{top:0.0196,any:0.183}, 25:{top:0.071,any:0.4866}, 50:{top:0.1784,any:0.8123}, 100:{top:0.4387,any:0.9788}};
+
+const POST = {rep:42, susp:96, btp:true, s:50, sameMix:true, e:100, pa:30, pp:0, radius:25, top:true, act:10};
+const HIGH = {...POST, pa:50, top:false, act:100/3};
+let P = {...POST};
+
+// ---------- model ----------
+function model(p){
+  const s = p.s/100;
+  const afterBtp = V - (p.btp ? BTP_REP : 0);
+  const distinct = afterBtp * (1 - p.rep/100);
+  const suspects = distinct * p.susp/100;
+  const lists = suspects * NONEMPTY_TODAY/100;
+  // per 100 searches at the original setting
+  const y = Math.max(0, (ORIG - STRICT/s) / (1 - R/s));     // only wrong faces
+  const x = R * y;
+  const g0 = ORIG - y;                                       // right person on the list
+  const g1 = STRICT - x;
+  const extra = NONEMPTY_TODAY - ORIG;
+  let gT, wT;
+  if (p.sameMix){ gT = g0/ORIG*NONEMPTY_TODAY; wT = y/ORIG*NONEMPTY_TODAY; }
+  else { gT = g0 + extra*(1 - p.e/100); wT = y + extra*p.e/100; }
+  const wrongLists = suspects * wT/100, genLists = suspects * gT/100;
+  const pickedA = wrongLists * p.pa/100, pickedP = genLists * p.pp/100;
+  const near = p.radius ? (p.top ? DIST[p.radius].top : DIST[p.radius].any) : 1;
+  const kept = (pickedA + pickedP) * near;
+  const contact = kept * p.act/100;
+  return {afterBtp, distinct, suspects, lists, y, x, g0, g1, gT, wT, wrongLists, genLists, pickedA, pickedP, near, kept, contact};
+}
+
+// ---------- formatting ----------
+function round(n){
+  if (!isFinite(n)) return 0;
+  const a = Math.abs(n);
+  if (a >= 10000) { const m = Math.pow(10, Math.floor(Math.log10(a)) - 2); return Math.round(n/m)*m; }
+  if (a >= 100)   { const m = Math.pow(10, Math.floor(Math.log10(a)) - 1); return Math.round(n/m)*m; }
+  if (a >= 10)    return Math.round(n);
+  return Math.round(n*10)/10;
+}
+const fmt = n => round(n).toLocaleString("en-GB");
+const pct = (n, d=0) => (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toLocaleString("en-GB") + "%";
+function millions(a,b){ return (Math.round(a/1e5)/10).toLocaleString("en-GB") + " to " + (Math.round(b/1e5)/10).toLocaleString("en-GB") + " million"; }
+
+// ---------- controls ----------
+const $ = id => document.getElementById(id);
+const sliders = ["rep","susp","s","e","pa","pp","act"];
+const outFmt = {rep:v=>pct(v), susp:v=>pct(v), s:v=>pct(v), e:v=>pct(v), pa:v=>pct(v), pp:v=>pct(v), act:v=>pct(v,1)};
+sliders.forEach(k => $(k).addEventListener("input", ev => { P[k] = +ev.target.value; render(); }));
+$("btp").addEventListener("change", ev => { P.btp = ev.target.checked; render(); });
+$("sameMix").addEventListener("change", ev => { P.sameMix = ev.target.checked; render(); });
+document.querySelectorAll("#radius button").forEach(b => b.addEventListener("click", () => { P.radius = +b.dataset.val; render(); }));
+document.querySelectorAll("#topany button").forEach(b => b.addEventListener("click", () => { P.top = b.dataset.val === "top"; render(); }));
+document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => { P = {...(b.dataset.preset === "high" ? HIGH : POST)}; render(); }));
+
+// tick marks under sliders
+document.querySelectorAll(".marks").forEach(m => {
+  const inp = $(m.dataset.for), lo = +inp.min, hi = +inp.max;
+  m.dataset.marks.split("|").forEach(t => {
+    const [v, label] = t.split(":"); const sp = document.createElement("span");
+    sp.style.left = ((+v - lo) / (hi - lo) * 100) + "%"; sp.textContent = v + "% " + label; m.appendChild(sp);
+  });
+});
+
+function same(a,b){ return Object.keys(POST).every(k => Math.abs((a[k]===true?1:a[k]===false?0:a[k]) - (b[k]===true?1:b[k]===false?0:b[k])) < 1e-9 || (k==="e" && a.sameMix && b.sameMix)); }
+
+// ---------- render ----------
+let last = {};
+function setV(key, text){
+  document.querySelectorAll('[data-v="'+key+'"]').forEach(el => {
+    if (el.textContent !== text){ el.textContent = text; if (last[key] !== undefined){ el.classList.remove("changed"); void el.offsetWidth; el.classList.add("changed"); } }
+  });
+  last[key] = text;
+}
+function cond(name, on){
+  document.querySelectorAll('[data-if="'+name+'"]').forEach(el => el.classList.toggle("hide", !on));
+  document.querySelectorAll('[data-ifnot="'+name+'"]').forEach(el => el.classList.toggle("hide", on));
+}
+function render(){
+  // controls reflect state
+  sliders.forEach(k => { $(k).value = P[k]; $("o-"+k).textContent = outFmt[k](P[k]); });
+  $("btp").checked = P.btp; $("sameMix").checked = P.sameMix;
+  $("e-row").style.opacity = P.sameMix ? .4 : 1; $("e").disabled = P.sameMix;
+  document.querySelectorAll("#radius button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.val === P.radius));
+  document.querySelectorAll("#topany button").forEach(b => b.setAttribute("aria-pressed", (b.dataset.val === "top") === P.top));
+  $("topwrap").style.display = P.radius ? "" : "none";
+
+  const m = model(P);
+  const isPost = same(P, POST);
+  cond("btp", P.btp); cond("sameMix", P.sameMix); cond("ppOn", P.pp > 0); cond("distOn", P.radius > 0); cond("top", P.top); cond("isPost", isPost);
+
+  setV("btpRep", fmt(BTP_REP)); setV("afterBtp", fmt(m.afterBtp));
+  setV("repPct", pct(P.rep)); setV("suspPct", pct(P.susp));
+  setV("distinct", fmt(m.distinct)); setV("suspects", fmt(m.suspects)); setV("lists", fmt(m.lists));
+  setV("faces", millions(m.lists*9, m.lists*15));
+  setV("wrongLists", fmt(m.wrongLists)); setV("genLists", fmt(m.genLists));
+  setV("sPct", P.s === 50 ? "half" : pct(P.s));
+  setV("t_g1", Math.round(m.g1)); setV("t_x", Math.round(m.x)); setV("t_g0", Math.round(m.g0)); setV("t_y", Math.round(m.y));
+  setV("t_gT", Math.round(m.gT)); setV("t_wT", Math.round(m.wT)); setV("ePct", pct(P.e));
+  setV("range40", fmt(model({...P, s:40}).wrongLists)); setV("range100", fmt(model({...P, s:100}).wrongLists));
+  setV("paPct", pct(P.pa)); setV("pickedA", fmt(m.pickedA));
+  setV("ppTen", fmt(m.genLists*0.1)); setV("ppPct", pct(P.pp)); setV("pickedP", fmt(m.pickedP));
+  if (P.radius){ setV("radius", String(P.radius)); setV("topPct", pct(DIST[P.radius].top*100)); setV("anyPct", pct(DIST[P.radius].any*100)); }
+  setV("kept", fmt(m.kept));
+  setV("actPct", Math.abs(P.act-10)<1e-9 ? "one in ten" : Math.abs(P.act-100/3)<0.01 ? "one in three" : pct(P.act,1));
+  setV("contact", fmt(m.contact));
+  setV("highVal", fmt(model({...P, pa:50, top:false, radius:P.radius||25, act:100/3}).contact));
+
+  $("bar-n").textContent = fmt(m.contact);
+  const perWeek = m.contact/52;
+  $("bar-sub").textContent = (perWeek >= 1 ? "about " + fmt(perWeek) + " a week" : "about one every " + fmt(365/Math.max(m.contact,0.01)) + " days") + (isPost ? " · the post's values" : " · post: about 130");
+  $("cap-mode").textContent = isPost ? "the post's cautious values" : "your chosen values";
+  drawFunnel(m);
+  $("mc-post").textContent = fmt(model(POST).contact);
+}
+
+// ---------- funnel chart ----------
+function drawFunnel(m){
+  const rows = [
+    ["All searches", V],
+    ["Distinct searches for a suspect", m.suspects],
+    ["Return candidates", m.lists],
+    ["Right person not on the list", m.wrongLists],
+    ["Reviewer accepts a wrong face", m.pickedA + m.pickedP],
+    [P.radius ? "Passes the distance check" : "No distance check", m.kept],
+    ["Contact on a wrong match", m.contact]
+  ];
+  const x0 = 250, W = 330, top = 64, step = 48;
+  const css = getComputedStyle(document.documentElement);
+  let s = '<text x="0" y="22" font-size="15" font-weight="600" fill="var(--ink)">Of ' + V.toLocaleString("en-GB") + ' searches a year, about ' + fmt(m.contact) + ' may end in contact on a wrong match</text>';
+  s += '<text x="0" y="42" font-size="11.5" fill="var(--ink2)">' + (same(P,POST) ? "The post's cautious values multiplied through" : "Your chosen values multiplied through") + '</text>';
+  rows.forEach((r,i) => {
+    const y = top + i*step, w = Math.max(r[1]/V*W, 3), last = i === rows.length-1;
+    s += '<text x="0" y="' + (y+19) + '" font-size="13" fill="var(--ink)"' + (last?' font-weight="600"':'') + '>' + r[0] + '</text>';
+    s += '<rect x="' + x0 + '" y="' + y + '" width="' + w + '" height="28" rx="4" fill="' + (last ? 'var(--accent)' : 'var(--bar)') + '"><title>' + fmt(r[1]) + ' a year</title></rect>';
+    s += '<text x="' + (x0 + w + 8) + '" y="' + (y+19) + '" font-size="13" fill="var(--ink)"' + (last?' font-weight="600"':'') + '>' + (i ? "about " + fmt(r[1]) : r[1].toLocaleString("en-GB")) + '</text>';
+  });
+  $("funnel").innerHTML = s;
+}
+
+// ---------- Monte Carlo ----------
+const MC = [
+  {k:"rep",  label:"Repeat searches (%)", lo:30, hi:50, min:0, max:60},
+  {k:"susp", label:"Searches for suspects (%)", lo:90, hi:100, min:50, max:100},
+  {k:"s",    label:"Genuine matches surviving the stricter setting (%)", lo:40, hi:100, min:30, max:100},
+  {k:"e",    label:"Extra lists today holding only wrong faces (%)", lo:54, hi:100, min:0, max:100},
+  {k:"pa",   label:"Wrong picks, lists without the right person (%)", lo:30, hi:54, min:0, max:100},
+  {k:"pp",   label:"Wrong picks, lists with the right person (%)", lo:0, hi:10, min:0, max:100},
+  {k:"act",  label:"Wrong leads acted on as evidence (%)", lo:9.4, hi:34, min:0, max:100}
+];
+const tb = $("mc-rows");
+MC.forEach(r => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = '<td>' + r.label + '</td><td><input type="number" step="any" min="'+r.min+'" max="'+r.max+'" value="'+r.lo+'" data-k="'+r.k+'" data-end="lo" aria-label="'+r.label+' from"></td><td><input type="number" step="any" min="'+r.min+'" max="'+r.max+'" value="'+r.hi+'" data-k="'+r.k+'" data-end="hi" aria-label="'+r.label+' to"></td>';
+  tb.appendChild(tr);
+});
+const trd = document.createElement("tr");
+trd.innerHTML = '<td>Distance check</td><td colspan="2" id="mc-dist"></td>'; tb.appendChild(trd);
+$("mc-btp").checked = true;
+
+$("mc-run").addEventListener("click", () => {
+  const rng = {};
+  tb.querySelectorAll("input").forEach(i => { (rng[i.dataset.k] = rng[i.dataset.k] || {})[i.dataset.end] = Math.min(+i.max, Math.max(+i.min, +i.value)); });
+  Object.values(rng).forEach(r => { if (r.lo > r.hi) [r.lo, r.hi] = [r.hi, r.lo]; });
+  const N = 10000, out = new Float64Array(N);
+  const u = (r) => r.lo + Math.random()*(r.hi - r.lo);
+  for (let i = 0; i < N; i++){
+    const p = {btp: $("mc-btp").checked, sameMix:false, radius:0, top:true,
+      rep:u(rng.rep), susp:u(rng.susp), s:Math.max(30,u(rng.s)), e:u(rng.e), pa:u(rng.pa), pp:u(rng.pp), act:u(rng.act)};
+    const m = model(p);
+    let near = 1;
+    if (P.radius){ const d = DIST[P.radius]; near = d.top + Math.random()*(d.any - d.top); }
+    out[i] = (m.pickedA + m.pickedP) * near * p.act/100;
+  }
+  const sorted = Array.from(out).sort((a,b)=>a-b), q = f => sorted[Math.floor(f*(N-1))];
+  $("mc-med").textContent = fmt(q(.5));
+  $("mc-int").textContent = fmt(q(.05)) + " to " + fmt(q(.95));
+  $("mc-out").classList.remove("hide");
+  drawHist(sorted, q(.5));
+});
+function updateMcDist(){ $("mc-dist").textContent = P.radius ? ("within " + P.radius + " miles; each draw between top face only (" + pct(DIST[P.radius].top*100) + ") and any face (" + pct(DIST[P.radius].any*100) + ")") : "none (as chosen above)"; }
+
+function drawHist(sorted, med){
+  const pm0 = model(POST).contact;
+  const lo = Math.log10(Math.max(1, Math.min(sorted[0], pm0*0.8))), hi = Math.log10(Math.max(10, sorted[sorted.length-1]));
+  const a = Math.floor(lo*4)/4, b = Math.ceil(hi*4)/4, nb = Math.max(8, Math.round((b-a)*8));
+  const bins = new Array(nb).fill(0);
+  sorted.forEach(v => { const t = (Math.log10(Math.max(1,v)) - a)/(b-a); bins[Math.min(nb-1, Math.max(0, Math.floor(t*nb)))]++; });
+  const W = 640, H = 190, x0 = 30, y0 = 20, mx = Math.max(...bins), bw = W/nb;
+  let s = '';
+  bins.forEach((c,i) => { const h = c/mx*H; s += '<rect x="'+(x0+i*bw+1)+'" y="'+(y0+H-h)+'" width="'+(bw-2)+'" height="'+h+'" rx="2" fill="var(--bar)"><title>'+c+' draws</title></rect>'; });
+  const X = v => x0 + (Math.log10(Math.max(1,v)) - a)/(b-a)*W;
+  s += '<line x1="'+x0+'" x2="'+(x0+W)+'" y1="'+(y0+H)+'" y2="'+(y0+H)+'" stroke="var(--muted)"/>';
+  [1,10,100,1000,10000,100000].forEach(t => { if (Math.log10(t) >= a-1e-9 && Math.log10(t) <= b+1e-9){ s += '<text x="'+X(t)+'" y="'+(y0+H+18)+'" font-size="11" text-anchor="middle" fill="var(--ink2)">'+t.toLocaleString("en-GB")+'</text>'; } });
+  const pm = model(POST).contact, xm = X(med), xp = X(pm);
+  s += '<line x1="'+xm+'" x2="'+xm+'" y1="'+y0+'" y2="'+(y0+H)+'" stroke="var(--accent)" stroke-width="2"/><text x="'+(xm+4)+'" y="'+(y0+10)+'" font-size="11" fill="var(--accent)">median '+fmt(med)+'</text>';
+  if (pm >= Math.pow(10,a) && pm <= Math.pow(10,b)) s += '<line x1="'+xp+'" x2="'+xp+'" y1="'+y0+'" y2="'+(y0+H)+'" stroke="var(--ink2)" stroke-dasharray="4 3"/><text x="'+(xp+4)+'" y="'+(y0+26)+'" font-size="11" fill="var(--ink2)">post '+fmt(pm)+'</text>';
+  $("mc-hist").innerHTML = s;
+}
+
+const _render = render; render = function(){ _render(); updateMcDist(); };
+render();
+})();
+</script>
+{% endraw %}
