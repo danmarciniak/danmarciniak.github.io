@@ -57,6 +57,14 @@ tags:
 .rfr .stats{display:flex;gap:18px;flex-wrap:wrap;font-size:.9em;margin:12px 0 8px}
 .rfr .stats b{color:var(--accent);font-size:1.15em}
 .rfr .rfr-footer{font-size:.8em;color:var(--ink2);border-top:1px solid var(--rule);margin-top:2.5em;padding-top:1em}
+.rfr .sens-sub{font-size:.85em;color:var(--ink2);margin-bottom:10px}
+.rfr .sens-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 12px;align-items:center;font-size:.85em;line-height:1.3;padding:4px 0}
+.rfr .sens-track{display:flex;align-items:center;gap:6px;min-width:0}
+.rfr .sens-bar{height:16px;border-radius:3px;background:var(--bar);flex:none}
+.rfr .sens-row.hl .sens-bar{background:var(--accent)}
+.rfr .sens-row.hl .sens-val{font-weight:700}
+.rfr .sens-val{font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:560px){.rfr .sens-row{grid-template-columns:1fr;gap:2px;padding:5px 0}}
 .rfr .hide{display:none}
 </style>
 <div class="rfr">
@@ -204,7 +212,27 @@ tags:
 
 <h2>What could be done about this?</h2>
 
-<p>Loosen the assumptions above and the number of people contacted on a wrong match quickly reaches thousands a year. The real figure is unknown because nobody records it. HMICFRS recommends that police forces should make more of the search facility. But even more searches will mean even more false positives. So, what could be done about this?</p>
+<p>Loosen the assumptions above and the number of people contacted on a wrong match quickly reaches thousands a year. The most uncertain assumptions (the physical distance by which investigators exclude matches if at all, and how often wrong leads end in a contact) have the biggest influence on the final count.</p>
+
+<figure>
+<div class="sens" role="img" aria-label="How much each choice changes the estimate: the distance check and how often wrong leads end in a contact matter most">
+<div class="sens-sub">Factor by which each choice changes contacts a year (log scale)</div>
+<div class="sens-row hl" title="36 to 815 contacts a year"><div class="sens-lab">Distance radius, 10 to 100 miles (top face)</div><div class="sens-track"><div class="sens-bar" style="width:77.3%"></div><span class="sens-val">×22.4</span></div></div>
+<div class="sens-row hl" title="132 to 1,860 contacts a year"><div class="sens-lab">Distance check at 25 miles vs none</div><div class="sens-track"><div class="sens-bar" style="width:65.8%"></div><span class="sens-val">×14.1</span></div></div>
+<div class="sens-row hl" title="132 to 904 contacts a year"><div class="sens-lab">Top face only vs any face (25 miles)</div><div class="sens-track"><div class="sens-bar" style="width:48.0%"></div><span class="sens-val">×6.9</span></div></div>
+<div class="sens-row hl" title="124 to 449 contacts a year"><div class="sens-lab">Acting on a wrong lead, 9.4% to 34%</div><div class="sens-track"><div class="sens-bar" style="width:31.8%"></div><span class="sens-val">×3.6</span></div></div>
+<div class="sens-row" title="101 to 190 contacts a year"><div class="sens-lab">Genuine matches surviving, 40% to 100%</div><div class="sens-track"><div class="sens-bar" style="width:15.9%"></div><span class="sens-val">×1.9</span></div></div>
+<div class="sens-row" title="132 to 238 contacts a year"><div class="sens-lab">Wrong picks, 30% to 54%</div><div class="sens-track"><div class="sens-bar" style="width:14.6%"></div><span class="sens-val">×1.8</span></div></div>
+<div class="sens-row" title="114 to 159 contacts a year"><div class="sens-lab">Repeat searches, 30% to 50%</div><div class="sens-track"><div class="sens-bar" style="width:8.4%"></div><span class="sens-val">×1.4</span></div></div>
+<div class="sens-row" title="132 to 169 contacts a year"><div class="sens-lab">Wrong picks from lists with the right person, 0% to 10%</div><div class="sens-track"><div class="sens-bar" style="width:6.6%"></div><span class="sens-val">×1.3</span></div></div>
+<div class="sens-row" title="132 to 159 contacts a year"><div class="sens-lab">Extra lists today: same mix vs all look-alikes</div><div class="sens-track"><div class="sens-bar" style="width:4.6%"></div><span class="sens-val">×1.2</span></div></div>
+<div class="sens-row" title="124 to 137 contacts a year"><div class="sens-lab">Searches for suspects, 90% to 100%</div><div class="sens-track"><div class="sens-bar" style="width:2.4%"></div><span class="sens-val">×1.1</span></div></div>
+<div class="sens-row" title="132 to 138 contacts a year"><div class="sens-lab">BTP resubmissions removed or kept</div><div class="sens-track"><div class="sens-bar" style="width:0.6%"></div><span class="sens-val">×1</span></div></div>
+</div>
+<figcaption>Each choice changed on its own across its range while keeping the others at their start value. Hover over a row for the results at each end. When all choices vary together, as in the simulation below, the distance check accounts for about 60% of the spread and acting on wrong leads for about 30%.</figcaption>
+</figure>
+
+<p>HMICFRS recommends that police forces should make more of the search facility. But even more searches will mean even more false positives. So, what could be done about this?</p>
 
 <ul>
 <li>Most importantly, police forces have to start tracking the outcomes from searches. <a href="https://hmicfrs.justiceinspectorates.gov.uk/publications/how-police-forces-and-national-crime-agency-use-retrospective-facial-recognition/">HMICFRS</a> calls on police to "routinely collect, analyse and review retrospective facial recognition information" to evaluate its use, currently we know too little about how effective it is beyond officers' opinions and, as argued here, how high the risk of false identifications is. For every search, that means recording whether it was new or a repeat, the threshold and the candidates' rankings, who selected a candidate and whether a second reviewer checked it independently, what corroborating evidence was obtained, whether the person was contacted, interviewed, arrested or eliminated, and the eventual outcome.</li>
