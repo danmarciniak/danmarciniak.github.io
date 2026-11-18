@@ -239,7 +239,7 @@ function drawHist(){
   s += '<line x1="'+xp+'" x2="'+xp+'" y1="'+(y0+12)+'" y2="'+(y0+H)+'" stroke="var(--ink2)" stroke-dasharray="4 3"/><text x="'+(xp+5)+'" y="'+(y0+12)+'" font-size="12" fill="var(--ink2)">post '+fmt(pm)+'</text>';
   if (note) s += '<text x="'+(x0+W)+'" y="'+(y0+H+36)+'" font-size="11.5" text-anchor="end" fill="var(--ink2)">'+note+'</text>';
   $("mc-hist").innerHTML = s;
-  $("mc-scale-note").textContent = "log scale: each labelled step along the axis is ten times the last"; $("mc-scale-note-wrap").style.display = histScale === "log" ? "" : "none";
+  $("mc-scale-note-wrap").style.display = histScale === "log" ? "" : "none";
 }
 
 render();
