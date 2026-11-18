@@ -253,7 +253,7 @@ tags:
 
 <h2>Not sure which values to pick? Try them all</h2>
 
-<p>Instead of picking one value per step as you have done so far, set a range for each, and the page will draw 10,000 combinations at random from within those ranges and show how the result is spread. The ranges below start at plausible values but you can change them as you like.</p>
+<p>Instead of picking one value per step as you have done so far, set a range for each, and the page will draw 10,000 combinations at random from within those ranges and show how the result is spread. The ranges below start at plausible values but you can change them as you like. The distance check has its own rows: a range of radii, which faces investigators consider, and, if you like, a share of investigators who do no distance check at all.</p>
 
 <div class="ctl mc">
   <h3>Ranges for the simulation</h3>
@@ -265,8 +265,9 @@ tags:
   <button class="b primary" id="mc-run">Run 10,000 combinations</button>
   <div id="mc-out" class="hide">
     <div class="stats"><div>Median<br><b id="mc-med"></b></div><div>Middle 90% of draws<br><b id="mc-int"></b></div><div>Post's scenario<br><b id="mc-post"></b></div></div>
-    <svg id="mc-hist" viewBox="0 0 700 260" role="img" aria-label="Histogram of simulated contacts a year"></svg>
-    <p class="hint">Contacts a year on a wrong match, log scale. This shows how much the result depends on the choices, not a statistical confidence interval: nobody knows how likely each value in a range is, so every value is treated as equally likely.</p>
+    <div class="seg" id="mc-scale" role="group" aria-label="Histogram scale"><button data-val="linear">plain scale</button><button data-val="log">log scale</button></div>
+    <svg id="mc-hist" viewBox="0 0 700 280" role="img" aria-label="Histogram of simulated contacts a year"></svg>
+    <p class="hint">Contacts a year given a wrong match<span id="mc-scale-note-wrap">; <span id="mc-scale-note"></span></span>. Each value within the chosen ranges is treated as equally likely.</p>
   </div>
 </div>
 

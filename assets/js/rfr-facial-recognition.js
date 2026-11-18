@@ -164,50 +164,83 @@ MC.forEach(r => {
   tr.innerHTML = '<td>' + r.label + '</td><td><input type="number" step="any" min="'+r.min+'" max="'+r.max+'" value="'+r.lo+'" data-k="'+r.k+'" data-end="lo" aria-label="'+r.label+' from"></td><td><input type="number" step="any" min="'+r.min+'" max="'+r.max+'" value="'+r.hi+'" data-k="'+r.k+'" data-end="hi" aria-label="'+r.label+' to"></td>';
   tb.appendChild(tr);
 });
-const trd = document.createElement("tr");
-trd.innerHTML = '<td>Distance check</td><td colspan="2" id="mc-dist"></td>'; tb.appendChild(trd);
+const GRID = {r:[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140,145,150],
+ top:[0.006,0.0196,0.0356,0.053,0.071,0.0907,0.1109,0.133,0.1552,0.1784,0.2012,0.2251,0.2502,0.2763,0.3023,0.3287,0.3561,0.3836,0.4112,0.4387,0.4665,0.4943,0.5225,0.5476,0.5701,0.5934,0.6169,0.6409,0.6659,0.6901],
+ any:[0.0658,0.183,0.2899,0.3934,0.4866,0.5747,0.6482,0.7138,0.7682,0.8123,0.8473,0.8768,0.9018,0.9196,0.9351,0.9472,0.9581,0.9674,0.9735,0.9788,0.9839,0.9871,0.9899,0.9915,0.9929,0.994,0.9953,0.9961,0.9967,0.9974]};
+function gridShare(radius, key){
+  const r = Math.min(150, Math.max(5, radius)), j = Math.min(GRID.r.length-2, Math.floor((r-5)/5)), t = (r - GRID.r[j])/5;
+  return GRID[key][j]*(1-t) + GRID[key][j+1]*t;
+}
+[["rad","Distance radius (miles)",10,50,5,150],["none","Investigators doing no distance check (%)",0,0,0,100]].forEach(([k,label,lo,hi,min,max]) => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = '<td>' + label + '</td><td><input type="number" step="any" min="'+min+'" max="'+max+'" value="'+lo+'" data-k="'+k+'" data-end="lo" aria-label="'+label+' from"></td><td><input type="number" step="any" min="'+min+'" max="'+max+'" value="'+hi+'" data-k="'+k+'" data-end="hi" aria-label="'+label+' to"></td>';
+  tb.appendChild(tr);
+});
+const trf = document.createElement("tr");
+trf.innerHTML = '<td>Faces investigators consider</td><td colspan="2"><select id="mc-faces" style="font:inherit;font-size:.85rem;padding:3px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink)"><option value="top">only the top-ranked face</option><option value="between" selected>somewhere between top face and any face</option><option value="any">any face on the list</option></select></td>';
+tb.appendChild(trf);
 $("mc-btp").checked = true;
 
+let lastRun = null, histScale = "linear";
 $("mc-run").addEventListener("click", () => {
   const rng = {};
   tb.querySelectorAll("input").forEach(i => { (rng[i.dataset.k] = rng[i.dataset.k] || {})[i.dataset.end] = Math.min(+i.max, Math.max(+i.min, +i.value)); });
   Object.values(rng).forEach(r => { if (r.lo > r.hi) [r.lo, r.hi] = [r.hi, r.lo]; });
+  const faces = $("mc-faces").value;
   const N = 10000, out = new Float64Array(N);
   const u = (r) => r.lo + Math.random()*(r.hi - r.lo);
   for (let i = 0; i < N; i++){
     const p = {btp: $("mc-btp").checked, sameMix:false, radius:0, top:true,
       rep:u(rng.rep), susp:u(rng.susp), s:Math.max(30,u(rng.s)), e:u(rng.e), pa:u(rng.pa), pp:u(rng.pp), act:u(rng.act)};
     const m = model(p);
-    let near = 1;
-    if (P.radius){ const d = DIST[P.radius]; near = d.top + Math.random()*(d.any - d.top); }
+    const rad = u(rng.rad), tp = gridShare(rad, "top"), an = gridShare(rad, "any");
+    const share = faces === "top" ? tp : faces === "any" ? an : tp + Math.random()*(an - tp);
+    const none = u(rng.none)/100;
+    const near = none + (1 - none)*share;
     out[i] = (m.pickedA + m.pickedP) * near * p.act/100;
   }
   const sorted = Array.from(out).sort((a,b)=>a-b), q = f => sorted[Math.floor(f*(N-1))];
   $("mc-med").textContent = fmt(q(.5));
   $("mc-int").textContent = fmt(q(.05)) + " to " + fmt(q(.95));
   $("mc-out").classList.remove("hide");
-  drawHist(sorted, q(.5));
+  lastRun = {sorted, med:q(.5)};
+  drawHist();
 });
-function updateMcDist(){ $("mc-dist").textContent = P.radius ? ("within " + P.radius + " miles; each draw between top face only (" + pct(DIST[P.radius].top*100) + ") and any face (" + pct(DIST[P.radius].any*100) + ")") : "none (as chosen above)"; }
+document.querySelectorAll("#mc-scale button").forEach(b => b.addEventListener("click", () => { histScale = b.dataset.val; drawHist(); }));
 
-function drawHist(sorted, med){
-  const pm0 = model(POST).contact;
-  const lo = Math.log10(Math.max(1, Math.min(sorted[0], pm0*0.8))), hi = Math.log10(Math.max(10, sorted[sorted.length-1]));
-  const a = Math.floor(lo*4)/4, b = Math.ceil(hi*4)/4, nb = Math.max(8, Math.round((b-a)*8));
-  const bins = new Array(nb).fill(0);
-  sorted.forEach(v => { const t = (Math.log10(Math.max(1,v)) - a)/(b-a); bins[Math.min(nb-1, Math.max(0, Math.floor(t*nb)))]++; });
-  const W = 640, H = 190, x0 = 30, y0 = 20, mx = Math.max(...bins), bw = W/nb;
-  let s = '';
-  bins.forEach((c,i) => { const h = c/mx*H; s += '<rect x="'+(x0+i*bw+1)+'" y="'+(y0+H-h)+'" width="'+(bw-2)+'" height="'+h+'" rx="2" fill="var(--bar)"><title>'+c+' draws</title></rect>'; });
-  const X = v => x0 + (Math.log10(Math.max(1,v)) - a)/(b-a)*W;
+function niceStep(range, n){ const raw = range/n, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw/p; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10)*p; }
+function drawHist(){
+  if (!lastRun) return;
+  document.querySelectorAll("#mc-scale button").forEach(b => b.setAttribute("aria-pressed", b.dataset.val === histScale));
+  const {sorted, med} = lastRun, N = sorted.length, pm = model(POST).contact;
+  const W = 640, H = 190, x0 = 30, y0 = 34;
+  let s = '', X, bins, nb, ticks = [], note = '';
+  if (histScale === "log"){
+    const lo = Math.log10(Math.max(1, Math.min(sorted[0], pm*0.8))), hi = Math.log10(Math.max(10, sorted[N-1]));
+    const a = Math.floor(lo*4)/4, b = Math.ceil(hi*4)/4; nb = Math.max(8, Math.round((b-a)*8));
+    bins = new Array(nb).fill(0);
+    sorted.forEach(v => { const t = (Math.log10(Math.max(1,v)) - a)/(b-a); bins[Math.min(nb-1, Math.max(0, Math.floor(t*nb)))]++; });
+    X = v => x0 + (Math.log10(Math.max(1,v)) - a)/(b-a)*W;
+    [1,10,100,1000,10000,100000].forEach(t => { if (Math.log10(t) >= a-1e-9 && Math.log10(t) <= b+1e-9) ticks.push(t); });
+  } else {
+    const cap = sorted[Math.floor(0.99*(N-1))], step = niceStep(cap, 30), top = Math.ceil(cap/step)*step;
+    nb = Math.round(top/step); bins = new Array(nb).fill(0); let over = 0;
+    sorted.forEach(v => { if (v >= top) over++; else bins[Math.floor(v/step)]++; });
+    X = v => x0 + Math.min(v, top)/top*W;
+    const ts = niceStep(top, 5); for (let t = 0; t <= top + 1e-9; t += ts) ticks.push(t);
+    if (over) note = over.toLocaleString("en-GB") + " draws above " + fmt(top) + " not shown";
+  }
+  const mx = Math.max(...bins), bw = W/nb;
+  bins.forEach((c,i) => { const h = c/mx*H; s += '<rect x="'+(x0+i*bw+0.5)+'" y="'+(y0+H-h)+'" width="'+Math.max(bw-1,1)+'" height="'+h+'" rx="1.5" fill="var(--bar)"><title>'+c+' draws</title></rect>'; });
   s += '<line x1="'+x0+'" x2="'+(x0+W)+'" y1="'+(y0+H)+'" y2="'+(y0+H)+'" stroke="var(--muted)"/>';
-  [1,10,100,1000,10000,100000].forEach(t => { if (Math.log10(t) >= a-1e-9 && Math.log10(t) <= b+1e-9){ s += '<text x="'+X(t)+'" y="'+(y0+H+18)+'" font-size="11" text-anchor="middle" fill="var(--ink2)">'+t.toLocaleString("en-GB")+'</text>'; } });
-  const pm = model(POST).contact, xm = X(med), xp = X(pm);
-  s += '<line x1="'+xm+'" x2="'+xm+'" y1="'+y0+'" y2="'+(y0+H)+'" stroke="var(--accent)" stroke-width="2"/><text x="'+(xm+4)+'" y="'+(y0+10)+'" font-size="11" fill="var(--accent)">median '+fmt(med)+'</text>';
-  if (pm >= Math.pow(10,a) && pm <= Math.pow(10,b)) s += '<line x1="'+xp+'" x2="'+xp+'" y1="'+y0+'" y2="'+(y0+H)+'" stroke="var(--ink2)" stroke-dasharray="4 3"/><text x="'+(xp+4)+'" y="'+(y0+26)+'" font-size="11" fill="var(--ink2)">post '+fmt(pm)+'</text>';
+  ticks.forEach(t => { s += '<text x="'+X(t)+'" y="'+(y0+H+18)+'" font-size="12" text-anchor="middle" fill="var(--ink2)">'+t.toLocaleString("en-GB")+'</text>'; });
+  const xm = X(med), xp = X(pm);
+  s += '<line x1="'+xm+'" x2="'+xm+'" y1="'+(y0-6)+'" y2="'+(y0+H)+'" stroke="var(--accent)" stroke-width="2"/><text x="'+(xm+5)+'" y="'+(y0-8)+'" font-size="12" fill="var(--accent)">median '+fmt(med)+'</text>';
+  s += '<line x1="'+xp+'" x2="'+xp+'" y1="'+(y0+12)+'" y2="'+(y0+H)+'" stroke="var(--ink2)" stroke-dasharray="4 3"/><text x="'+(xp+5)+'" y="'+(y0+12)+'" font-size="12" fill="var(--ink2)">post '+fmt(pm)+'</text>';
+  if (note) s += '<text x="'+(x0+W)+'" y="'+(y0+H+36)+'" font-size="11.5" text-anchor="end" fill="var(--ink2)">'+note+'</text>';
   $("mc-hist").innerHTML = s;
+  $("mc-scale-note").textContent = "log scale: each labelled step along the axis is ten times the last"; $("mc-scale-note-wrap").style.display = histScale === "log" ? "" : "none";
 }
 
-const _render = render; render = function(){ _render(); updateMcDist(); };
 render();
 })();
