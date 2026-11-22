@@ -17,9 +17,9 @@
   /* keep footer in normal document flow so custom widgets do not overlap content */
   height: auto;
 
-  /* keep the footer on the bottom of the page */
-  position: fixed;
-  bottom: 0;
+  /* footer sits at the end of the page rather than pinned to the window */
+  position: relative;
+  bottom: auto;
 
   -webkit-animation: intro 0.3s both;
           animation: intro 0.3s both;
@@ -57,12 +57,9 @@
   }
 }
 
-@media screen and (max-width: 768px) {
-  /* don't pin the footer on mobile devices */
-  .page__footer {
-    position: relative;
-    bottom: auto;
-  }
+/* the theme script reserves space under the page for a pinned footer; not needed now */
+body {
+  margin-bottom: 0 !important;
 }
 
 .page__footer-copyright {
