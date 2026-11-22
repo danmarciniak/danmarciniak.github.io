@@ -242,5 +242,15 @@ function drawHist(){
   $("mc-scale-note-wrap").style.display = histScale === "log" ? "" : "none";
 }
 
+// The theme pins its footer to the bottom of the window on wider screens; keep the results bar just above it.
+function placeBar(){
+  const bar = document.querySelector(".rfr .bar"), foot = document.querySelector(".page__footer");
+  if (!bar) return;
+  bar.style.bottom = (foot && getComputedStyle(foot).position === "fixed") ? foot.offsetHeight + "px" : "0px";
+}
+window.addEventListener("resize", placeBar);
+window.addEventListener("load", placeBar);
+placeBar();
+
 render();
 })();
